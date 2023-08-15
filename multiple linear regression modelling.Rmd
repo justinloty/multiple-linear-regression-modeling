@@ -1,0 +1,62 @@
+---
+title: "linear regression modelling"
+author: "Justin Lo"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I will be using the 'Auto' dataset from the ISLR package. I aim to find relationship between the variables and build multiple linear regression models.
+
+Loading the Auto dataset
+```{r}
+install.packages('ISLR')
+library('ISLR')
+data("Auto", package = 'ISLR')
+```
+
+First, let's do basic visualisation and correlation findings. 
+```{r}
+head(Auto)
+pairs(Auto[,1:7])
+cor(Auto[,1:7])
+```
+
+To build a a multiple linear regression with `mpg` as the response and all other variables except `name` as the predictors.
+```{r}
+lm.fit1 <-  lm(mpg ~ . - name, data = Auto)
+summary(lm.fit1)
+```
+There is a relatioship between the predictors and the response by testing the null hypothesis of whether all the regression coefficients are zero. The F-statistic is far from 1 (with a small p-value), indicating evidence against the null hypothesis. 
+Also, looking at the p-values associated with each predictor's t-statistic, we see that displacement, weight, year, and origin have a statistically significant relationship, while cylinders, horsepower, and acceleration do not.
+
+To further determine whether the model is suitable for our dataset, we produce diagnostic plots of the linear regression fit to check linear assumptions. 
+```{r}
+par(mfrow = c(2, 2))
+plot(lm.fit1)
+par(mfrow = c(1,1))
+plot(predict(lm.fit1), rstudent(lm.fit1))
+```
+From the residuals vs leverage plot, we see no points lie outside the cook's distance, meaning no particular observation carries significant influence. 
+
+From the scale - lcation plot, we can see that the red line is roughly horizontal, meaning that the assumption of equal variance is met. 
+
+From the QQ plot, we can see that most observations lie on the line, meaning that the assumption of error following a normal distribution is met. 
+
+From the residuals vs fitted plot, we can see that the red line isn't quite horizontal, meaning that perhaps the residuals do not follow a linear pattern. Which tells us that linear model may not be the best fit. 
+
+From the scatterplot of prediction of the model and the standardized residuals, we can see that there are data with a value greater than 3 which means possible outliers. 
+
+To further improve the model, the interactions between the predictors are considered. 
+```{r}
+lm.fit2 <-  lm(mpg ~ cylinders * displacement + displacement * weight, data = Auto)
+summary(lm.fit2)
+```
+Interaction between displacement and weight is statistically signifcant, while the interaction between cylinders and displacement is not.
+
+
+
+
